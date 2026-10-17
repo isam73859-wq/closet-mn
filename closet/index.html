@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0b10">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cyber Closet">
+  <title>My Cyber Closet | Streetwear & Y2K Stylist</title>
+  <link rel="manifest" href="app.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <h1>My Cyber Closet</h1>
+        <span>Armario virtual y estilista personal · Y2K / Streetwear</span>
+      </div>
+
+      <nav class="nav" aria-label="Secciones">
+        <button type="button" data-view="closet" class="nav-btn active">Mi clóset</button>
+        <button type="button" data-view="inspo" class="nav-btn">Inspo Pinterest</button>
+        <button type="button" data-view="outfit" class="nav-btn">¿Qué me pongo?</button>
+      </nav>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btn-export" title="Exportar copia de seguridad">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <span class="lbl">Exportar</span>
+        </button>
+        <button type="button" class="btn" id="btn-import" title="Importar copia de seguridad">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15V3m0 0L8 7m4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <span class="lbl">Importar</span>
+        </button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+        <button type="button" class="btn btn-primary" id="btn-add">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="lbl">Agregar prenda</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- CLÓSET -->
+    <section class="view" id="view-closet">
+      <div class="page-head">
+        <div>
+          <h2>Mi clóset</h2>
+          <p id="closet-summary">Cargando prendas...</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="search" placeholder="Buscar por nombre, color o tipo..." autocomplete="off" aria-label="Buscar prendas">
+        </div>
+        <div class="chips" id="style-chips">
+          <button type="button" class="chip" data-style="Streetwear">Streetwear</button>
+          <button type="button" class="chip" data-style="Y2K">Y2K</button>
+          <button type="button" class="chip" data-style="Basico">Básico</button>
+        </div>
+        <select class="field sort" id="sort" aria-label="Ordenar">
+          <option value="recent">Más recientes</option>
+          <option value="old">Más antiguas</option>
+          <option value="name">Nombre A–Z</option>
+        </select>
+      </div>
+
+      <div class="tabs" id="tabs"></div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- INSPO -->
+    <section class="view" id="view-inspo" hidden>
+      <div class="page-head">
+        <div>
+          <h2>Moodboard de inspiración</h2>
+          <p>Sube tus fotos de Pinterest: el estilista lee sus colores y arma outfits parecidos con tu ropa.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-add-inspo">Subir fotos de inspo</button>
+        <input type="file" id="inspo-input" accept="image/*" multiple hidden>
+      </div>
+      <div class="grid" id="inspo-grid"></div>
+    </section>
+
+    <!-- OUTFITS -->
+    <section class="view" id="view-outfit" hidden>
+      <div class="page-head">
+        <div>
+          <h2>Generador estilista</h2>
+          <p>Combina tu clóset con tus referencias de Pinterest.</p>
+        </div>
+      </div>
+
+      <div class="outfit-controls">
+        <select class="field" id="outfit-style" aria-label="Estilo del outfit">
+          <option value="">Cualquier estilo</option>
+          <option value="Streetwear">Streetwear</option>
+          <option value="Y2K">Y2K / Cyber</option>
+          <option value="Basico">Básico</option>
+        </select>
+        <button type="button" class="btn btn-primary btn-large" id="btn-generate">Generar outfits</button>
+      </div>
+
+      <div class="outfit-result" id="outfit-result"></div>
+    </section>
+  </main>
+
+  <!-- DIÁLOGO PRENDA -->
+  <dialog id="item-dialog">
+    <form class="modal" id="cloth-form" novalidate>
+      <div class="modal-head">
+        <h2 id="dialog-title">Agregar prenda</h2>
+        <button type="button" class="icon-btn" id="btn-close" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div>
+          <label class="dropzone" id="dropzone">
+            <input type="file" id="cloth-image" accept="image/*">
+            <div class="hint">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              <strong>Sube la foto de tu prenda</strong>
+              Arrastra o haz clic aquí
+            </div>
+            <img id="preview" alt="Vista previa" hidden>
+          </label>
+        </div>
+
+        <div class="fields">
+          <div class="form-group full">
+            <label for="cloth-name">Nombre de la prenda</label>
+            <input class="field" type="text" id="cloth-name" placeholder="Ej: Hoodie Black Parachute" maxlength="60" required>
+          </div>
+
+          <div class="form-group">
+            <label for="cloth-category">Categoría</label>
+            <select class="field" id="cloth-category" required>
+              <option value="superior">Parte superior</option>
+              <option value="inferior">Parte inferior</option>
+              <option value="calzado">Calzado</option>
+              <option value="accesorios">Accesorios</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="cloth-type">Tipo de prenda</label>
+            <select class="field" id="cloth-type" required></select>
+          </div>
+
+          <div class="form-group full">
+            <span class="label">Estilo dominante</span>
+            <div class="seg">
+              <label><input type="radio" name="style" value="Streetwear" checked><span>Streetwear</span></label>
+              <label><input type="radio" name="style" value="Y2K"><span>Y2K / Cyber</span></label>
+              <label><input type="radio" name="style" value="Basico"><span>Básico</span></label>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <span class="label">Corte / silueta</span>
+            <div class="seg">
+              <label><input type="radio" name="fit" value="Holgado"><span>Holgado</span></label>
+              <label><input type="radio" name="fit" value="Regular" checked><span>Regular</span></label>
+              <label><input type="radio" name="fit" value="Ajustado"><span>Ajustado</span></label>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <span class="label">Color principal</span>
+            <div class="swatches" id="swatches"></div>
+            <div class="color-row">
+              <input type="color" id="cloth-hex" value="#111111" aria-label="Elegir color">
+              <input class="field" type="text" id="cloth-color" placeholder="Nombre del color" maxlength="30" required>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-danger" id="btn-delete-dialog" hidden>Eliminar</button>
+        <button type="button" class="btn" id="btn-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-save">Guardar prenda</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toasts" aria-live="polite"></div>
+
+  <script src="app.js?v=8"></script>
+</body>
+</html>
